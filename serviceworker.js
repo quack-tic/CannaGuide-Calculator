@@ -1,7 +1,7 @@
 // CannGuide Rechner — Service Worker
 // Minimaler Offline-Cache für das eigenständige Rechner-Paket.
 // Erhöhe CACHE_NAME bei jedem Update, damit Clients die neue Version laden.
-var CACHE_NAME = 'cannguide-rechner-v1';
+var CACHE_NAME = 'cannguide-calculator-v2';
 var ASSETS = [
   './',
   './index.html',
