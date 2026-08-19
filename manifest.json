@@ -1,0 +1,26 @@
+{
+  "name": "CannGuide Rechner",
+  "short_name": "Rechner",
+  "description": "Dosierungsrechner für Cannabis-Edibles — Rohmaterial & Extrakt/Konzentrat.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#111111",
+  "theme_color": "#52b788",
+  "orientation": "portrait-primary",
+  "lang": "de",
+  "icons": [
+    {
+      "src": "./icon-192.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg",
+      "purpose": "any"
+    },
+    {
+      "src": "./icon-512.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any"
+    }
+  ]
+}

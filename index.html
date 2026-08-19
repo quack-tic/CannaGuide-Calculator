@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="de">
+<!-- CannGuide Rechner — eigenständiges Modul, extrahiert aus CannGuide © 2024-2026 quack-tic
+     Basiert auf dem aktuellen Stand von github.com/quack-tic/cannguide (main-Branch)
+     Licensed under GNU GPL v3 — https://github.com/quack-tic/CannGuide -->
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="theme-color" content="#52b788">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Rechner">
+<meta name="description" content="Dosierungsrechner für Cannabis-Edibles — Blüten & Extrakt/Konzentrat. Eigenständiges Modul aus CannGuide.">
+<link rel="manifest" href="./manifest.json">
+<link rel="apple-touch-icon" href="./icon-192.jpg">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='112' fill='%230F172A'/%3E%3Cpolygon points='256,70 395,150 395,310 256,390 117,310 117,150' fill='none' stroke='%2338BDF8' stroke-width='28' stroke-linejoin='round'/%3E%3Ccircle cx='256' cy='70' r='20' fill='%2300F2FE'/%3E%3Cpath d='M256,160 Q286,230 256,300 Q226,230 256,160 Z' fill='%2334D399'/%3E%3Cpath d='M256,230 Q206,210 186,270 Q236,290 256,230 Z' fill='%23059669'/%3E%3Cpath d='M256,230 Q306,210 326,270 Q276,290 256,230 Z' fill='%23059669'/%3E%3Cline x1='256' y1='390' x2='256' y2='440' stroke='%2338BDF8' stroke-width='28' stroke-linecap='round'/%3E%3C/svg%3E">
+<title>CannGuide Rechner</title>
+<style>
+:root{--bg:#111;--bg2:#1a1a1a;--bg3:#222;--border:#2a2a2a;--border2:#3a3a3a;--text:#e8e8e8;--text2:#aaa;--text3:#666;--accent:#52b788;--accent-bg:#0d2018;--warn:#e05252;--warn-bg:#1f0e0e;--amber:#d4a017;--amber-bg:#1f1500;--radius:8px;--radius-lg:12px;--fs:14px;--fs-sm:12px;--fs-xs:11px;--fs-lg:15px;--fs-xl:17px}
+@media(prefers-color-scheme:light){
+  :root{--bg:#fafafa;--bg2:#f0f0f0;--bg3:#e4e4e4;--border:#ddd;--border2:#ccc;--text:#111;--text2:#444;--text3:#888}
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:var(--fs);line-height:1.6}
+.app{max-width:740px;margin:0 auto;padding:1.25rem 1rem 2.5rem}
+header{display:flex;align-items:center;gap:10px;margin-bottom:1.25rem}
+h1{font-size:20px;font-weight:600}
+.sub{font-size:var(--fs-sm);color:var(--text3);margin-top:1px}
+.cs{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.125rem;margin-bottom:10px}
+.cl{font-size:var(--fs-sm);color:var(--text3);margin-bottom:5px;display:block}
+.cr{margin-bottom:.875rem}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.rg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:.875rem}
+.rm{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:.875rem}
+.rl{font-size:var(--fs-xs);color:var(--text3);margin-bottom:5px}
+.rv{font-size:21px;font-weight:600}.rv.hi{color:var(--accent)}.rv.am{color:var(--amber)}.rv.warn{color:var(--warn)}
+.rv.sm{font-size:var(--fs);line-height:1.5;padding-top:2px;font-weight:400}
+.tag{display:inline-block;font-size:var(--fs-xs);padding:2px 8px;border-radius:5px;font-weight:500}
+.tg{background:var(--accent-bg);color:var(--accent)}.ta{background:var(--amber-bg);color:var(--amber)}.tr{background:var(--warn-bg);color:var(--warn)}
+.unit-badge{display:flex;align-items:center;padding:0 10px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);font-size:var(--fs);color:var(--text3);white-space:nowrap;margin-top:3px;cursor:pointer}
+select.unit-badge{-webkit-appearance:none;appearance:none;font-family:inherit;flex:0 0 62px;width:62px}
+.input-row{display:flex;gap:6px}.input-row input{flex:1;margin-top:0}
+input[type=range]{width:100%;accent-color:var(--accent);margin-top:3px}
+input[type=number],select,input[type=text],textarea{width:100%;padding:8px 10px;background:var(--bg);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-size:var(--fs);margin-top:3px;font-family:inherit}
+input[type=number]:focus,select:focus,input[type=text]:focus,textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-bg)}
+.btn{background:transparent;border:1px solid var(--border2);border-radius:var(--radius);padding:7px 14px;font-size:var(--fs-sm);cursor:pointer;color:var(--text2);transition:all .15s;display:inline-flex;align-items:center;gap:5px}
+.btn:hover{background:var(--bg2);color:var(--text)}
+.btn.primary{border-color:var(--accent);color:var(--accent)}.btn.primary:hover{background:var(--accent-bg)}
+.btn.danger{border-color:var(--warn);color:var(--warn)}.btn.danger:hover{background:var(--warn-bg)}
+.mode-toggle{display:flex;gap:6px;margin-bottom:.875rem}
+.mode-toggle .btn{flex:1;justify-content:center}
+.ksec-h{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:.625rem}
+.ksec-h h2{font-size:var(--fs-lg);font-weight:600}
+.terpene-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;margin-top:8px}
+.terp-chip{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:6px 10px;cursor:pointer;transition:all .15s;font-size:var(--fs-sm)}
+.terp-chip:hover{border-color:var(--border2)}
+.terp-chip.sel{background:var(--accent-bg);border-color:var(--accent);color:var(--accent)}
+.terp-chip .tn{font-weight:600;display:block}
+.terp-chip .ts{font-size:var(--fs-xs);color:var(--text3);margin-top:2px}
+.terp-chip.sel .ts{color:#7ec8a0}
+.section-title{font-size:var(--fs-lg);font-weight:600;margin-bottom:.875rem;padding-bottom:7px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.empty-state{text-align:center;padding:1.5rem;color:var(--text3);font-size:var(--fs-sm)}
+.badge{font-size:var(--fs-xs);padding:2px 7px;border-radius:4px;background:var(--bg3);color:var(--text3);border:1px solid var(--border)}
+.hist-item{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:.75rem .875rem;margin-bottom:8px}
+.hist-item:last-child{margin-bottom:0}
+.hist-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.hist-meta{font-size:var(--fs-xs);color:var(--text3)}
+.hist-badges{display:flex;flex-wrap:wrap;gap:5px;margin-top:.5rem}
+.hist-mat{font-size:var(--fs-xs);color:var(--text3);margin-top:.375rem}
+@keyframes pulse-warn{0%,100%{box-shadow:0 0 0 0 rgba(224,82,82,0.4)}50%{box-shadow:0 0 0 6px rgba(224,82,82,0)}}
+@keyframes pulse-amber{0%,100%{box-shadow:0 0 0 0 rgba(212,160,23,0.5)}50%{box-shadow:0 0 0 6px rgba(212,160,23,0)}}
+@keyframes pulse-green{0%,100%{box-shadow:0 0 0 0 rgba(82,183,136,0.5)}50%{box-shadow:0 0 0 6px rgba(82,183,136,0)}}
+.pulse-warn{animation:pulse-warn 1.5s ease-in-out infinite;border-color:var(--warn)!important;}
+.pulse-amber{animation:pulse-amber 1.5s ease-in-out infinite;border-color:var(--amber)!important;}
+.pulse-green{animation:pulse-green 1.5s ease-in-out infinite;border-color:var(--accent)!important;}
+footer{font-size:var(--fs-xs);color:var(--text3);text-align:center;margin-top:1.5rem;line-height:1.6}
+footer a{color:var(--text2)}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="36" height="36" style="flex-shrink:0">
+    <rect width="512" height="512" rx="112" fill="#0F172A"/>
+    <polygon points="256,70 395,150 395,310 256,390 117,310 117,150" fill="none" stroke="#38BDF8" stroke-width="28" stroke-linejoin="round"/>
+    <circle cx="256" cy="70" r="20" fill="#00F2FE"/>
+    <path d="M256,160 Q286,230 256,300 Q226,230 256,160 Z" fill="#34D399"/>
+    <path d="M256,230 Q206,210 186,270 Q236,290 256,230 Z" fill="#059669"/>
+    <path d="M256,230 Q306,210 326,270 Q276,290 256,230 Z" fill="#059669"/>
+    <line x1="256" y1="390" x2="256" y2="440" stroke="#38BDF8" stroke-width="28" stroke-linecap="round"/>
+  </svg>
+  <div><h1>CannGuide Rechner</h1><p class="sub">Dosierungsrechner für Cannabis-Edibles — Blüten &amp; Extrakt/Konzentrat</p></div>
+</header>
+
+<div class="cs">
+  <div class="mode-toggle">
+    <button id="btn-mode-raw" class="btn primary" onclick="setCalcMode('raw')">🌿 Blüten</button>
+    <button id="btn-mode-extract" class="btn" onclick="setCalcMode('extract')">💧 Extrakt / Konzentrat</button>
+  </div>
+
+  <div class="ksec-h" style="margin-top:.75rem"><h2>① Ausgangsmaterial</h2></div>
+  <div class="cr"><label class="cl">Eingesetzte Wirkstoffmenge</label>
+    <div class="input-row"><input type="number" id="ig" value="5" min="0.001" step="0.001" oninput="calcUpdate()">
+      <select class="unit-badge" id="input-unit-label" onchange="calcUpdate()">
+        <option value="0.001">mg</option><option value="1" selected>g</option><option value="1000">kg</option><option value="1">ml</option><option value="100">dl</option><option value="1000">l</option>
+      </select>
+    </div>
+  </div>
+  <!-- Blüten -->
+  <div id="raw-inputs">
+    <div class="cr"><label class="cl">Wirkstoffgehalt Blüten: <strong id="po">20</strong>%</label>
+      <input type="range" min="1" max="35" step="1" value="20" id="potency" oninput="document.getElementById('po').textContent=this.value;calcUpdate()">
+    </div>
+    <div class="cr"><label class="cl">Bereits decarboxyliert (aktiviert)?</label>
+      <select id="raw-decarb" onchange="onDecarbChange()">
+        <option value="" selected disabled>— bitte wählen —</option>
+        <option value="no">Nein – Rohwert / THCA (Aktivierung nötig)</option>
+        <option value="yes">Ja – aktives Material</option>
+      </select>
+    </div>
+    <div id="raw-decarb-info" style="display:none;border-radius:var(--radius);padding:8px 10px;font-size:var(--fs-sm);margin-bottom:.625rem"></div>
+  </div>
+  <!-- Extrakt -->
+  <div id="extract-inputs" style="display:none">
+    <div class="row2">
+      <div class="cr"><label class="cl">Extrakt-Typ</label>
+        <select id="extract-type" onchange="onExtractTypeChange()">
+          <optgroup label="Blütenmaterial (unverarbeitet)"><option value="kief">Kief / Pollen (30–60%)</option></optgroup>
+          <optgroup label="Lösungsmittelfrei"><option value="rosin">Rosin (60–80%)</option><option value="thca_k">THCA-Kristalle (95–99%)</option></optgroup>
+          <optgroup label="Live-Extrakte (frisch gefroren)"><option value="live_bho">Live Resin – BHO (65–85%)</option><option value="live_rosin">Live Rosin / Live Bubble Hash (50–85%)</option><option value="live_sift">Live Dry Sift (35–65%)</option></optgroup>
+          <optgroup label="Lösungsmittel-Extrakte"><option value="bho_s">BHO Shatter (70–90%)</option><option value="bho_w">BHO Wax/Budder (65–85%)</option><option value="bho_o">BHO Sauce/Öl (50–80%)</option><option value="rso">RSO (40–70%)</option><option value="feco">FECO (50–80%)</option><option value="tred">Tinktur-Redukt (30–60%)</option></optgroup>
+          <optgroup label="Destillate"><option value="dest">Vakuumdestillat (85–99%)</option></optgroup>
+          <option value="custom">Eigener Wert</option>
+        </select>
+      </div>
+      <div class="cr"><label class="cl">Wirkstoffgehalt: <strong id="po-ext">70</strong>%</label>
+        <input type="range" min="1" max="99" step="1" value="70" id="potency-ext" oninput="document.getElementById('po-ext').textContent=this.value;calcUpdate()">
+      </div>
+    </div>
+    <div class="cr"><label class="cl">Bereits decarboxyliert (aktiviert)?</label>
+      <select id="extract-decarb" onchange="onDecarbChange()">
+        <option value="" selected disabled>— bitte wählen —</option>
+        <option value="no">Nein – Rohwert (THCA, Aktivierung nötig)</option>
+        <option value="yes">Ja – aktives Material</option>
+      </select>
+    </div>
+    <div id="decarb-info" style="display:none;background:var(--warn-bg);border:1px solid var(--warn);border-radius:var(--radius);padding:8px 10px;font-size:var(--fs-sm);color:var(--warn);margin-bottom:.625rem"></div>
+    <div id="extract-hint" style="background:var(--bg3);border-radius:var(--radius);padding:8px 10px;font-size:var(--fs-sm);color:var(--text3);margin-bottom:.625rem"></div>
+  </div>
+
+  <div class="ksec-h" style="margin-top:1.1rem"><h2>② Herstellung &amp; Portionierung</h2></div>
+  <div class="cr"><label class="cl">Träger / Medium</label>
+    <select id="cm" onchange="onMediumChange()">
+      <optgroup label="Fette"><option value="butter">Butter</option><option value="ghee">Ghee</option><option value="kokosoel">Kokosöl (nativ)</option><option value="kokosfett">Kokosfett (raffiniert)</option></optgroup>
+      <optgroup label="Öle"><option value="mct">MCT-Öl (C8/C10)</option><option value="olivenoel">Olivenöl</option></optgroup>
+      <optgroup label="Weitere Träger"><option value="glycerin">Glycerin (VG)</option><option value="tinktur">Tinktur / Ethanol</option></optgroup>
+      <optgroup label="Fertigprodukte"><option value="gummies">Gummies</option><option value="hard_candy">Hard Candy</option><option value="baked">Backwaren</option><option value="kapseln">Kapseln</option></optgroup>
+    </select>
+  </div>
+  <div id="edible-fields">
+    <div class="cr"><label class="cl" id="label-carrier">Trägermenge gesamt</label>
+      <div class="input-row"><input type="number" id="carrier" value="200" min="1" step="1" oninput="calcUpdate()">
+        <select class="unit-badge" id="carrier-unit" onchange="calcUpdate()"></select>
+      </div>
+    </div>
+    <div class="cr"><label class="cl" id="label-portion">Gramm Wirkstoffträger pro fertige Portion enthalten</label>
+      <div class="input-row"><input type="number" id="portion-c" value="10" min="0.1" step="0.1" oninput="calcUpdate()">
+        <select class="unit-badge" id="portion-unit" onchange="calcUpdate()"></select>
+      </div>
+    </div>
+    <!-- Effizienz -->
+    <div class="cr" id="eff-row">
+      <label class="cl">Extraktionseffizienz: <strong id="eo">80</strong>% <span id="eff-hint" style="font-size:var(--fs-xs);color:var(--text3);margin-left:4px"></span></label>
+      <input type="range" min="50" max="98" step="1" value="80" id="eff" oninput="document.getElementById('eo').textContent=this.value;calcUpdate()">
+    </div>
+  </div>
+
+  <div class="ksec-h" style="margin-top:1.1rem"><h2>③ Wirkung &amp; Einordnung</h2></div>
+  <!-- Applikation / Bioverfügbarkeit -->
+  <div class="cr">
+    <label class="cl">Applikationsform (Bioverfügbarkeit)</label>
+    <select id="bioavail" onchange="onBioChange()">
+      <option value="0">— Nicht berücksichtigen —</option>
+      <option value="0.275">Sublingual (Ø 20–35%)</option>
+      <option value="0.13">Oral / Edibles (Ø 6–20%)</option>
+      <option value="0.03">Topisch (Ø 1–5%)</option>
+    </select>
+  </div>
+  <div id="bio-appinfo" style="display:none;background:var(--accent-bg);border:1px solid var(--accent);border-radius:var(--radius);padding:9px 12px;font-size:var(--fs-xs);color:#7ec8a0;line-height:1.65;margin-bottom:.875rem"></div>
+  <div id="bio-disclaimer" style="display:none;background:var(--amber-bg);border:1px solid var(--amber);border-radius:var(--radius);padding:9px 12px;font-size:var(--fs-xs);color:var(--amber);line-height:1.65;margin-bottom:.875rem">
+    ⚠ Bioverfügbarkeitswerte sind Mittelwerte aus klinischen Studien und stellen keine individuellen Prognosen dar. Natürliche Produkte unterliegen inhärenten Schwankungen in Wirkstoffgehalt und -zusammensetzung. Darüber hinaus beeinflussen genetische Veranlagung, Stoffwechselrate, Mageninhalt, Toleranz und Enzymaktivität (insb. CYP2C9/CYP3A4) die tatsächlich bioverfügbare Menge erheblich. Die angezeigten Werte dienen ausschliesslich der groben Orientierung.
+  </div>
+  <!-- Toleranz -->
+  <div class="cr">
+    <label class="cl">Konsumfrequenz (Toleranzkorrektur)</label>
+    <select id="tolerance" onchange="calcUpdate()">
+      <option value="" selected disabled>— bitte wählen —</option>
+      <option value="1.0">Gelegentlich (1× / Woche oder weniger)</option>
+      <option value="1.3">Regelmässig (2–4× / Woche)</option>
+      <option value="1.7">Täglich</option>
+      <option value="2.2">Täglich mehrmals</option>
+    </select>
+  </div>
+  <!-- Terpene -->
+  <div class="cr">
+    <div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer" onclick="var g=document.getElementById('terpene-grid');var i=document.getElementById('terp-toggle');var v=g.style.display==='none';g.style.display=v?'grid':'none';i.textContent=v?'▲':'▼'">
+      <label class="cl" style="cursor:pointer;margin:0">Terpenprofil (optional — Info)</label>
+      <span id="terp-toggle" style="font-size:10px;color:var(--text3)">▼</span>
+    </div>
+    <div class="terpene-grid" id="terpene-grid" style="display:none"></div>
+  </div>
+  <div id="terp-info" style="display:none;background:var(--accent-bg);border:1px solid var(--accent);border-radius:var(--radius);padding:9px 12px;font-size:var(--fs-sm);color:#7ec8a0;line-height:1.65;margin-top:4px"></div>
+
+  <div id="calc-warn" style="display:none;border-radius:var(--radius-lg);padding:.875rem 1.125rem;margin-top:.875rem;margin-bottom:10px;font-size:var(--fs-sm);line-height:1.8"></div>
+  <div id="conc-summary" style="display:none;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:.875rem 1.125rem;margin-bottom:10px;font-size:var(--fs-sm);color:var(--text3);line-height:1.8"></div>
+
+  <div class="rg" id="result-grid">
+    <div class="rm pulse-green" id="r-kg-box" style="display:none"><div class="rl">Empf. Einstiegsdosis (Delta-9, oral)</div><div class="rv hi" id="r-kg">—</div></div>
+    <div class="rm"><div class="rl">Intensität</div><div class="rv" id="r-int">—</div></div>
+    <div class="rm"><div class="rl">Delta-9-THC gesamt in Charge</div><div class="rv hi" id="r-total">—</div></div>
+    <div class="rm"><div class="rl">Delta-9-THC pro Portion</div><div class="rv hi" id="r-portion">—</div></div>
+    <div class="rm" id="r-bio-box" style="display:none"><div class="rl" id="r-bio-label">Bioverfügbar (Ø)</div><div class="rv am" id="r-bio">—</div></div>
+    <div class="rm"><div class="rl">Empfehlung</div><div class="rv sm" id="r-rec" style="color:var(--text3)">—</div></div>
+    <div id="r-hints-label" style="display:none;grid-column:1/-1;font-size:var(--fs-xs);color:var(--text3);text-transform:uppercase;letter-spacing:.05em;font-weight:700;margin-top:4px">⚠️ Wichtige Hinweise — bitte vor dem Konsum lesen</div>
+    <div id="r-11oh-warn" style="display:none;grid-column:1/-1;background:#1f0a0a;border:1px solid #c0392b;border-radius:var(--radius);padding:10px 12px;font-size:var(--fs-sm);color:#e07070;line-height:1.7">
+      ⚠️ <b>Achtung: 11-Hydroxy-THC</b><br>
+      Diese bioverfügbare Menge entsteht oral in der Leber als <b>11-Hydroxy-THC</b> — nicht als Delta-9-THC wie beim Inhalieren. 11-OH-THC wirkt <b>4–5× stärker</b> und bis zu <b>8 Stunden</b>.<br>
+      Bereits <b>1–2mg 11-OH-THC</b> gelten als spürbare Startdosis. Die angezeigte bioverfügbare Menge ist <b>kein Freifahrtschein</b> für höhere Dosierung — im Gegenteil.<br>
+      <b>Immer mit der kleinstmöglichen Portion starten und mindestens 2h warten.</b>
+    </div>
+    <div id="r-tol-box" style="display:none;grid-column:1/-1;background:var(--warn-bg);border:1px solid var(--warn);border-radius:var(--radius);padding:10px 12px;font-size:var(--fs-sm);color:var(--warn);line-height:1.65">⚠️ <b>Hinweis bei angegebener Toleranz</b> (<span id="r-tol-lvl">—</span>)<br><span id="r-tol-text">—</span></div>
+  </div>
+  <div style="margin-top:1rem;display:flex;gap:8px;align-items:center">
+    <button class="btn primary" onclick="saveToHistory()">+ Im Verlauf speichern</button>
+    <span id="calc-saved" style="font-size:var(--fs-sm);color:var(--accent);display:none">✓ Gespeichert!</span>
+  </div>
+</div>
+
+<div class="cs">
+  <div class="section-title"><span>Verlauf</span><button class="btn danger" onclick="clearHistory()">Alles löschen</button></div>
+  <div id="hist-list"></div>
+</div>
+
+<footer>
+  Schätzwerte, keine medizinische Beratung. Deine Eingaben bleiben ausschliesslich lokal auf diesem Gerät (localStorage) — nichts wird übertragen.<br>
+  Extrahiert aus <a href="https://quack-tic.github.io/cannguide" target="_blank" rel="noopener">CannGuide</a> (Stand main-Branch, github.com/quack-tic/cannguide) · GNU GPL v3
+</footer>
+</div>
+
+<script>
+// ── DATA ─────────────────────────────────────────────────────────────────
+var MEDIA_CFG = {
+  butter:    {unit:'g',  eff:78, hint:'Butter ~78%', carrier:'Buttermenge gesamt', portion:'Angereicherte Butter pro fertige Portion'},
+  ghee:      {unit:'g',  eff:88, hint:'Ghee ~88% — reines Butterfett', carrier:'Ghee-Menge gesamt', portion:'Angereichertes Ghee pro fertige Portion'},
+  kokosoel:  {unit:'g',  eff:90, hint:'Kokosöl nativ ~90%', carrier:'Kokosöl gesamt', portion:'Angereichertes Kokosöl pro fertige Portion'},
+  kokosfett: {unit:'g',  eff:88, hint:'Kokosfett raffiniert ~88%', carrier:'Kokosfett gesamt', portion:'Angereichertes Kokosfett pro fertige Portion'},
+  mct:       {unit:'ml', eff:85, hint:'MCT-Öl ~85%', carrier:'MCT-Öl gesamt', portion:'Angereichertes MCT-Öl pro fertige Portion'},
+  olivenoel: {unit:'ml', eff:75, hint:'Olivenöl ~75%', carrier:'Olivenöl gesamt', portion:'Angereichertes Olivenöl pro fertige Portion'},
+  glycerin:  {unit:'ml', eff:55, hint:'Glycerin ~55%', carrier:'Glycerin gesamt', portion:'Angereichertes Glycerin pro fertige Portion'},
+  tinktur:   {unit:'ml', eff:92, hint:'Ethanol ~92%', carrier:'Ethanol gesamt', portion:'Angereichertes Ethanol pro fertige Portion'},
+  gummies:   {unit:'g',  eff:80, hint:'Gummies', carrier:'Gummimasse gesamt', portion:'Angereicherte Gummimasse pro fertige Portion'},
+  hard_candy:{unit:'g',  eff:82, hint:'Hard Candy', carrier:'Zuckermasse gesamt', portion:'Angereicherte Zuckermasse pro fertige Portion'},
+  baked:     {unit:'g',  eff:75, hint:'Backwaren', carrier:'Teigmasse gesamt', portion:'Angereicherte Teigmasse pro fertige Portion'},
+  kapseln:   {unit:'ml', eff:88, hint:'Kapseln', carrier:'Trägeröl gesamt', portion:'Angereichertes Trägeröl pro fertige Portion'}
+};
+
+var EXTRACT_CFG = {
+  rosin:  {min:60,max:80,def:70,hint:'Rosin: Lösungsmittelfrei, 60–80%.'},
+  kief:   {min:30,max:60,def:45,hint:'Kief / Pollen: 30–60%.'},
+  live_bho:   {min:65,max:85,def:75,hint:'Live Resin (BHO): Butan-Extraktion aus frisch gefrorenem Material, 65–85%.'},
+  live_rosin: {min:50,max:85,def:70,hint:'Live Rosin / Live Bubble Hash: lösungsmittelfrei aus gefrorenem Material, 50–85%.'},
+  live_sift:  {min:35,max:65,def:50,hint:'Live Dry Sift: Trockensieb aus gefrorenem Material, 35–65%.'},
+  thca_k: {min:95,max:99,def:97,hint:'THCA-Kristalle: 95–99% THCA. Dekarb vor Edibles-Einsatz Pflicht!'},
+  bho_s:  {min:70,max:90,def:80,hint:'BHO Shatter: 70–90%.'},
+  bho_w:  {min:65,max:85,def:75,hint:'BHO Wax/Budder: 65–85%.'},
+  bho_o:  {min:50,max:80,def:65,hint:'BHO Sauce/Öl: 50–80%.'},
+  rso:    {min:40,max:70,def:55,hint:'RSO: Vollspektrum-Warmextrakt, 40–70%.'},
+  feco:   {min:50,max:80,def:65,hint:'FECO: Kaltextrakt mit Winterization, 50–80%.'},
+  tred:   {min:30,max:60,def:45,hint:'Tinktur-Redukt: 30–60%.'},
+  dest:   {min:85,max:99,def:90,hint:'Vakuumdestillat: 85–99%, nahezu geschmacksneutral.'},
+  custom: {min:1, max:99,def:70,hint:'Eigener Wert: Laboranalyse eingeben.'}
+};
+
+var TERPENES = [
+  {id:'myrcen',   name:'Myrcen',    emoji:'🌿', effect:'Entspannend, sedierend, erdig. Verstärkt THC-Aufnahme.'},
+  {id:'limonen',  name:'Limonen',   emoji:'🍋', effect:'Stimmungsaufhellend, angstlösend, zitrusartig.'},
+  {id:'linalool', name:'Linalool',  emoji:'💜', effect:'Beruhigend, schlaffördernd, lavendelartig.'},
+  {id:'pinene',   name:'α-Pinen',   emoji:'🌲', effect:'Alertheit, Gedächtnis, antientzündlich. Waldartig.'},
+  {id:'caryoph',  name:'β-Caryoph.',emoji:'🌶', effect:'Entzündungshemmend, analgetisch. Pfeffrig-würzig.'},
+  {id:'humulen',  name:'Humulen',   emoji:'🍺', effect:'Appetitzügelnd, antientzündlich. Hopfenartig.'},
+  {id:'terpinol', name:'Terpineol', emoji:'🌺', effect:'Sedierend, antibakteriell. Floral-frisch.'},
+  {id:'ocimen',   name:'Ocimen',    emoji:'🌸', effect:'Antiviral, süsslich-fruchtig. Hebt Terpenprofil.'}
+];
+
+// ── STATE ─────────────────────────────────────────────────────────────────
+var calcMode = 'raw';
+var selectedTerpenes = [];
+var calcHistory = [];
+try { calcHistory = JSON.parse(localStorage.getItem('cannguide_rechner_history') || '[]'); } catch(e) {}
+
+function esc(s){ if(!s) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function parseDose(v) {
+  if(v===undefined || v===null) return 0;
+  var n = parseFloat(String(v).replace(/[^0-9.,-]/g,'').replace(',','.'));
+  return isNaN(n) ? 0 : n;
+}
+window.getDoseAmpel = function(dose) {
+  dose = parseDose(dose);
+  if(dose <= 0) return null;
+  if(dose < 5) return {emoji:'🟢', bg:'var(--accent-bg)', col:'var(--accent)', border:'var(--accent)'};
+  if(dose < 15) return {emoji:'🟡', bg:'var(--amber-bg)', col:'var(--amber)', border:'var(--amber)'};
+  if(dose < 25) return {emoji:'🟠', bg:'#1f0e00', col:'#e07820', border:'#e07820'};
+  return {emoji:'🔴', bg:'var(--warn-bg)', col:'var(--warn)', border:'var(--warn)'};
+};
+
+// ── TERPENE GRID ──────────────────────────────────────────────────────────
+window.renderTerpeneGrid = function() {
+  var grid = document.getElementById('terpene-grid'); if(!grid) return;
+  grid.innerHTML = TERPENES.map(function(t){
+    var sel = selectedTerpenes.indexOf(t.id) !== -1;
+    return '<div class="terp-chip'+(sel?' sel':'')+'" onclick="toggleTerp(\''+t.id+'\')">'
+      +'<span class="tn">'+t.emoji+' '+t.name+'</span>'
+      +'<span class="ts">'+t.effect.split('.')[0]+'</span>'
+      +'</div>';
+  }).join('');
+}
+window.toggleTerp = function(id) {
+  var idx = selectedTerpenes.indexOf(id);
+  if(idx !== -1) selectedTerpenes.splice(idx, 1);
+  else selectedTerpenes.push(id);
+  renderTerpeneGrid();
+  updateTerpInfo();
+};
+window.updateTerpInfo = function() {
+  var box = document.getElementById('terp-info'); if(!box) return;
+  if(!selectedTerpenes.length) { box.style.display='none'; return; }
+  var info = selectedTerpenes.map(function(id){
+    var t = TERPENES.find(function(x){return x.id===id;});
+    return t ? '<b>'+t.emoji+' '+t.name+':</b> '+t.effect : '';
+  }).join('<br>');
+  box.style.display = 'block';
+  box.innerHTML = info;
+}
+
+// ── RECHNER ───────────────────────────────────────────────────────────────
+window.setCalcMode = function(m) {
+  calcMode = m;
+  document.getElementById('raw-inputs').style.display = m==='raw'?'block':'none';
+  document.getElementById('extract-inputs').style.display = m==='extract'?'block':'none';
+  var er = document.getElementById('eff-row'); if(er) er.style.display = m==='extract'?'none':'block';
+  document.getElementById('btn-mode-raw').className = 'btn'+(m==='raw'?' primary':'');
+  document.getElementById('btn-mode-extract').className = 'btn'+(m==='extract'?' primary':'');
+  calcUpdate();
+};
+
+function setUnitOptions(id, baseUnit) {
+  var el = document.getElementById(id);
+  if(!el) return;
+  if(baseUnit === 'ml') el.innerHTML = '<option value="1">ml</option><option value="0.05" title="Standardannahme: 20 Tropfen ≈ 1 ml (kann je nach Flüssigkeit/Tropfer leicht abweichen)">Tropfen</option><option value="100">dl</option><option value="1000">l</option>';
+  else el.innerHTML = '<option value="0.001">mg</option><option value="1">g</option><option value="1000">kg</option>';
+  el.value = '1';
+}
+
+window.onMediumChange = function() {
+  var med = document.getElementById('cm').value;
+  var cfg = MEDIA_CFG[med]||{unit:'g',eff:80,hint:''};
+  setUnitOptions('carrier-unit', cfg.unit);
+  setUnitOptions('portion-unit', cfg.unit);
+  document.getElementById('eff').value = cfg.eff;
+  document.getElementById('eo').textContent = cfg.eff;
+  document.getElementById('eff-hint').textContent = cfg.hint;
+  calcUpdate();
+};
+
+window.onDecarbChange = function() {
+  [['extract-decarb','decarb-info'],['raw-decarb','raw-decarb-info']].forEach(function(p){
+    var dc = document.getElementById(p[0]); var box = document.getElementById(p[1]);
+    if(!dc || !box) return;
+    if(dc.value === 'no') {
+      box.style.display = 'block';
+      box.style.background='var(--warn-bg)'; box.style.border='1px solid var(--warn)'; box.style.color='var(--warn)';
+      box.innerHTML = '⚠️ <b>Rohwert (THCA):</b> muss vor oder beim Verarbeiten zu Edibles decarboxyliert (erhitzt) werden – sonst kaum Wirkung. Beim Aktivieren gehen ~12% Masse als CO₂ verloren; der Rechner zieht das ab.';
+    } else if(dc.value === 'yes') {
+      box.style.display = 'block';
+      box.style.background='var(--bg3)'; box.style.border='1px solid var(--border)'; box.style.color='var(--text3)';
+      box.innerHTML = '✓ Wird als bereits aktives THC gerechnet (voller Wert, kein Decarb-Abzug).';
+    } else {
+      box.style.display = 'none';
+    }
+  });
+  calcUpdate();
+};
+
+window.onExtractTypeChange = function() {
+  var t = document.getElementById('extract-type').value;
+  var cfg = EXTRACT_CFG[t]||{min:1,max:99,def:70,hint:''};
+  var sl = document.getElementById('potency-ext');
+  sl.min=cfg.min; sl.max=cfg.max; sl.value=cfg.def;
+  document.getElementById('po-ext').textContent = cfg.def;
+  document.getElementById('extract-hint').textContent = cfg.hint;
+  calcUpdate();
+};
+
+window.onBioChange = function() {
+  var v = document.getElementById('bioavail').value;
+  var el = document.getElementById('bio-appinfo');
+  if(!el) { calcUpdate(); return; }
+  if(v === '0.13') {
+    el.style.display = 'block';
+    el.innerHTML = '⚠️ <b>Oral / Edibles:</b> Die mg-Zahl ist hier nicht dasselbe wie beim Rauchen. THC wird in der Leber zu <b>11-Hydroxy-THC</b> umgewandelt — es wirkt stärker und länger als inhaliertes THC. Der Wirkungseintritt liegt bei <b>30–120 Minuten</b>. Nimm nichts nach, bevor die Wirkung spürbar ist oder bevor 120 Minuten vergangen sind.';
+  } else if(v === '0.275') {
+    el.style.display = 'block';
+    el.innerHTML = '💡 <b>Sublingual:</b> Wirkung setzt schneller ein als bei Edibles — kein Umweg über die Leber. Die mg-Zahl ist direkter vergleichbar mit Inhalation. Der Wirkungseintritt liegt bei <b>15–45 Minuten</b>. Halte die Lösung mindestens 60–90 Sekunden unter der Zunge.';
+  } else if(v === '0.03') {
+    el.style.display = 'block';
+    el.innerHTML = '💡 <b>Topisch:</b> Lokale Wirkung ohne systemischen Rausch. CBD und THC wirken entzündungshemmend über periphere CB2-Rezeptoren. Keine psychoaktive Wirkung bei korrekter Anwendung — ausser bei mukosaler Resorption (Schleimhäute).';
+  } else {
+    el.style.display = 'none';
+  }
+  calcUpdate();
+};
+
+window.calcUpdate = function() {
+  var med = document.getElementById('cm').value;
+  var cfg = MEDIA_CFG[med]||{unit:'g',eff:80};
+  var u = cfg.unit;
+  var lc = document.getElementById('label-carrier');
+  if(lc) lc.textContent = cfg.carrier || 'Trägermenge gesamt';
+  var lp = document.getElementById('label-portion');
+  if(lp) lp.textContent = cfg.portion || 'Gramm Wirkstoffträger pro fertige Portion enthalten';
+  var carrierMult = parseFloat(document.getElementById('carrier-unit').value)||1;
+  var carrier = (parseFloat(document.getElementById('carrier').value)||0) * carrierMult;
+  var pcMult = parseFloat(document.getElementById('portion-unit').value)||1;
+  var pc = (parseFloat(document.getElementById('portion-c').value)||0) * pcMult;
+  var e = parseFloat(document.getElementById('eff').value)||80;
+  var gMult = parseFloat(document.getElementById('input-unit-label').value)||1;
+  var g = (parseFloat(document.getElementById('ig').value)||0) * gMult;
+  var bio = parseFloat(document.getElementById('bioavail').value)||0;
+  var tolSel = document.getElementById('tolerance').value;
+  var tolFactor = parseFloat(tolSel)||1.0;
+  var medName = document.getElementById('cm').options[document.getElementById('cm').selectedIndex].text;
+
+  var bioDisc = document.getElementById('bio-disclaimer');
+  if(bioDisc) bioDisc.style.display = bio>0?'block':'none';
+
+  var tolBox = document.getElementById('r-tol-box');
+  if(tolBox) tolBox.style.display = tolFactor>1.0?'block':'none';
+
+  var rawMg, desc;
+  if(calcMode==='extract') {
+    var pExt = (parseFloat(document.getElementById('potency-ext').value)||70)/100;
+    rawMg = g*1000*pExt;
+    desc = g+'g Extrakt × '+Math.round(pExt*100)+'% = '+Math.round(rawMg)+' mg roh';
+  } else {
+    var p = parseFloat(document.getElementById('potency').value)||20;
+    rawMg = g*10*p;
+    desc = g+'g Blüten × '+p+'% = '+Math.round(rawMg)+' mg roh';
+  }
+
+  // Extrakt ist bereits der fertige Wirkstoff (decarbed, gelöst) -> keine Infusions-Effizienz.
+  var eEff = (calcMode==='extract') ? 100 : e;
+  var totMg = rawMg*(eEff/100);
+  // Decarb-Korrektur: Rohwerte (THCA) verlieren beim Aktivieren ~12,3% Masse (CO2).
+  var decarbNo = false, decarbSel = 'na';
+  if(calcMode==='extract' || calcMode==='raw') {
+    var _dc = document.getElementById(calcMode==='extract' ? 'extract-decarb' : 'raw-decarb');
+    decarbSel = _dc ? _dc.value : '';
+    if(decarbSel === 'no') { totMg = totMg * 0.877; decarbNo = true; }
+  }
+  var cpU = carrier>0 ? totMg/carrier : 0;
+  var ppMg = cpU*pc;
+  var totPor = pc>0 ? carrier/pc : 0;
+  var ratio = (g>0&&carrier>0) ? carrier/g : 0;
+  var ppBio = bio>0 ? ppMg*bio : 0;
+  var ppTol = 0;
+  if(tolFactor>1.0) {
+    var tolBase = {1.3: 7.5, 1.7: 12, 2.2: 18};
+    ppTol = tolBase[tolFactor] || 10;
+  }
+
+  var errs=[], warns=[];
+  if(carrier<=0) errs.push('Trägermenge eingeben.');
+  if(pc<=0) errs.push('Portionsgrösse eingeben.');
+  if(g<=0) errs.push('Eingesetzte Wirkstoffmenge eingeben.');
+  if((calcMode==='extract'||calcMode==='raw') && decarbSel!=='yes' && decarbSel!=='no') errs.push('Decarboxylierung wählen (Ja/Nein).');
+  if(tolSel==='') errs.push('Konsumfrequenz wählen.');
+  if(carrier>0&&pc>=carrier) errs.push('Portionsgrösse >= Trägermenge.');
+  if(ratio>0&&ratio<5) errs.push('Zu wenig Träger: 1:'+ratio.toFixed(1)+'. Mind. 1:10.');
+  else if(ratio>0&&ratio<10) warns.push('Verhältnis 1:'+ratio.toFixed(1)+' knapp.');
+  if(carrier>0&&pc>0&&pc<carrier) {
+    var mpu=ppMg/pc;
+    if(mpu>1000) errs.push('Unmöglich: '+ppMg.toFixed(0)+' mg in '+pc+u+' = '+(mpu/10).toFixed(0)+'% Reingehalt.');
+    else if(ppMg>500) warns.push(ppMg.toFixed(0)+' mg/Portion sehr hoch.');
+  }
+
+  var wb=document.getElementById('calc-warn'), cs=document.getElementById('conc-summary');
+  if(errs.length) {
+    wb.style.display='block'; wb.style.background='var(--warn-bg)'; wb.style.border='1px solid var(--warn)'; wb.style.color='var(--warn)';
+    wb.innerHTML='<b>Ungültige Eingabe</b><br>'+errs.join('<br>');
+    cs.style.display='none';
+    document.getElementById('r-total').textContent='—'; document.getElementById('r-portion').textContent='—';
+    document.getElementById('r-int').innerHTML=''; document.getElementById('r-rec').textContent='Eingaben korrigieren';
+    return;
+  }
+  if(warns.length) { wb.style.display='block'; wb.style.background='var(--amber-bg)'; wb.style.border='1px solid var(--amber)'; wb.style.color='var(--amber)'; wb.innerHTML='<b>Hinweis</b><br>'+warns.join('<br>'); }
+  else wb.style.display='none';
+
+  cs.style.display='block';
+  var effLabel;
+  if(calcMode==='extract') {
+    effLabel = decarbNo
+      ? 'Roh-Extrakt → decarboxyliert: ~87,7% aktiv (THCA→THC, CO₂-Verlust)'
+      : 'Vollständige Einarbeitung (~100% Transfer, bereits aktiv)';
+  } else {
+    effLabel = 'Nach Effizienz ('+eEff+'%)'+(decarbNo?' · Rohwert decarbt ~87,7%':'');
+  }
+  cs.innerHTML = desc+'<br>'+effLabel+': <b style="color:var(--accent)">'+Math.round(totMg)+' mg</b> in '+carrier+u+' '+medName+(ratio>0?' · 1:'+ratio.toFixed(1):'')+' <br>'
+    +'Konzentration: <b style="color:var(--accent)">'+cpU.toFixed(2)+' mg/'+u+'</b> · Portion '+pc+u+' → <b style="color:var(--accent)">'+ppMg.toFixed(1)+' mg</b>'
+    +(bio>0?' · bioverfügbar Ø <b style="color:var(--amber)">'+ppBio.toFixed(1)+' mg</b>':'')
+    +' · ca. <b style="color:var(--text2)">'+Math.round(totPor)+' Portionen</b>';
+
+  document.getElementById('r-total').textContent = '~'+Math.round(totMg)+' mg';
+  var portionEl = document.getElementById('r-portion');
+  portionEl.textContent = '~'+ppMg.toFixed(1)+' mg';
+  portionEl.className = 'rv' + (ppMg < 10 ? ' hi' : ppMg < 25 ? ' am' : ' warn');
+
+  var bioBox=document.getElementById('r-bio-box'), bioEl=document.getElementById('r-bio');
+  var ohWarn = document.getElementById('r-11oh-warn');
+  if(bio>0&&bioBox&&bioEl) {
+    bioBox.style.display='block';
+    bioEl.textContent='~'+ppBio.toFixed(1)+' mg';
+    var bl=document.getElementById('r-bio-label');
+    if(bl) bl.textContent = bio===0.13
+      ? '11-OH-THC bioverfügbar (Ø) · von '+ppMg.toFixed(1)+' mg Delta-9/Portion'
+      : 'Delta-9-THC bioverfügbar (Ø) · von '+ppMg.toFixed(1)+' mg/Portion';
+    var bioWarn = bio===0.13 && ppBio>=2.5;
+    if(ohWarn) {
+      ohWarn.style.display = bioWarn ? 'block' : 'none';
+      if(bioWarn) ohWarn.classList.add('pulse-warn');
+      else ohWarn.classList.remove('pulse-warn');
+    }
+    if(bio===0.13) {
+      if(ppBio<1.0) {
+        bioEl.style.color='var(--accent)';
+        bioBox.classList.remove('pulse-warn','pulse-amber');
+      } else if(ppBio<2.5) {
+        bioEl.style.color='var(--amber)';
+        bioBox.classList.remove('pulse-warn');
+        bioBox.classList.add('pulse-amber');
+      } else {
+        bioEl.style.color='var(--warn)';
+        bioBox.classList.remove('pulse-amber');
+        bioBox.classList.add('pulse-warn');
+      }
+    } else {
+      bioEl.style.color='var(--amber)';
+      bioBox.classList.remove('pulse-warn','pulse-amber');
+    }
+  } else if(bioBox) {
+    bioBox.style.display='none';
+    bioBox.classList.remove('pulse-warn','pulse-amber');
+    if(ohWarn) { ohWarn.style.display='none'; ohWarn.classList.remove('pulse-warn'); }
+  }
+
+  var tolTextEl=document.getElementById('r-tol-text');
+  var tolLvlEl=document.getElementById('r-tol-lvl');
+  if(tolFactor>1.0 && tolTextEl) {
+    var _tolSel=document.getElementById('tolerance');
+    if(tolLvlEl) tolLvlEl.textContent=_tolSel.options[_tolSel.selectedIndex].text;
+    tolTextEl.innerHTML='Bei bestehender Toleranz kann für einen spürbaren Wirkungseintritt mehr nötig sein — erfahrungsgemäss bis <span style="background:var(--amber);color:#1a1200;font-weight:800;font-size:1.15em;padding:1px 8px;border-radius:6px;white-space:nowrap">~'+ppTol+' mg Delta-9-THC (oral)</span>. <b>Das ist keine Empfehlung.</b> Höhere Dosen steigern Risiko und Toleranz weiter; eine Konsumpause (T-Break) senkt den Bedarf wieder.';
+  }
+  var hintsLabel = document.getElementById('r-hints-label');
+  if(hintsLabel) {
+    var oh = document.getElementById('r-11oh-warn');
+    var ohVisible = oh && oh.style.display !== 'none';
+    var tbVisible = tolFactor>1.0;
+    hintsLabel.style.display = (ohVisible || tbVisible) ? 'block' : 'none';
+  }
+
+  var tag='', rec='';
+  if(ppMg<2.5) { tag='<span class="tag tg">Schwellendosis (&lt;2.5mg)</span>'; rec='Kaum spürbar. Diese Menge eignet sich für eine Mikrodosierung oder als vorsichtigen ersten Test.'; }
+  else if(ppMg<5) { tag='<span class="tag tg">Niedrig (2.5–5mg)</span>'; rec='Ein guter Einsteiger-Bereich — die Wirkung lässt sich hier gut einschätzen und kontrollieren.'; }
+  else if(ppMg<10) { tag='<span class="tag tg">Mittel (5–10mg)</span>'; rec='Eine übliche Dosis für Personen mit etwas Konsumerfahrung.';}
+  else if(ppMg<20) { tag='<span class="tag ta">Stark (10–20mg)</span>'; rec='Diese Menge eignet sich nur für erfahrene Konsumentinnen und Konsumenten.'; }
+  else if(ppMg<35) { tag='<span class="tag tr">Sehr stark (20–35mg)</span>'; rec='Portionen teilen ist hier sinnvoll. Optional fürs nächste Mal: mehr Trägermenge, mehr Portionen oder weniger Wirkstoff verwenden.'; }
+  else { tag='<span class="tag tr">Extrem (&gt;35mg)</span>'; rec='Portionen unbedingt teilen. Fürs nächste Mal: mehr Trägermenge verwenden, mehr Portionen daraus machen oder weniger Wirkstoff einsetzen — alles einfache Wege zu einer leichter steuerbaren Dosis.'; }
+  document.getElementById('r-int').innerHTML = tag;
+  var portionBox = document.getElementById('r-portion').closest('.rm');
+  if(portionBox) portionBox.classList.toggle('pulse-warn', ppMg >= 20);
+  document.getElementById('r-rec').textContent = rec;
+
+  var severityColor = ppMg>=20 ? 'var(--warn)' : ppMg>=10 ? 'var(--amber)' : 'var(--accent)';
+  var intBox = document.getElementById('r-int').closest('.rm');
+  var recBox = document.getElementById('r-rec').closest('.rm');
+  [intBox, recBox].forEach(function(box){
+    if(!box) return;
+    box.classList.remove('pulse-warn');
+    if(ppMg>=20) { box.classList.add('pulse-warn'); }
+    else { box.style.borderColor = severityColor; }
+  });
+
+  var kgBox = document.getElementById('r-kg-box');
+  var kgEl = document.getElementById('r-kg');
+  // Einstiegsdosis (MacCallum & Russo 2018 als Basis): als Range, passt sich der Konsumfrequenz an.
+  if(kgBox && kgEl) {
+    kgBox.style.display = 'block';
+    var kgRange = tolFactor>=1.7 ? '~5–10 mg' : '~2.5–5 mg';
+    var kgFreqNote = tolFactor>=1.7 ? ' Bei täglichem Konsum braucht es für einen spürbaren Effekt erfahrungsgemäss mehr — daher die höhere Spanne.' : '';
+    kgEl.innerHTML = kgRange+'<div style="display:block;font-size:11px;font-weight:400;color:var(--text3);line-height:1.5;margin-top:4px">Delta-9-THC aufgenommen · oral wirksam als 11-OH · innerhalb dieser Spanne langsam steigern, nicht sofort das obere Ende nehmen.'+kgFreqNote+'<br>empfindliche Personen (tendenziell weiblichen Geschlechts) eher am unteren Ende ansetzen</div>';
+  }
+
+  return {carrier:carrier, pc:pc, g:g, totMg:totMg, ppMg:ppMg, medName:medName};
+};
+
+// ── VERLAUF (lokale Historie, kein Server, kein Foto-/PDF-Export) ─────────
+function saveHistoryStorage(){ try{ localStorage.setItem('cannguide_rechner_history', JSON.stringify(calcHistory)); }catch(e){} }
+
+window.saveToHistory = function() {
+  var med = document.getElementById('cm').options[document.getElementById('cm').selectedIndex].text;
+  var now = new Date();
+  var ds = now.toLocaleDateString('de-CH');
+  var ts = now.toLocaleTimeString('de-CH',{hour:'2-digit',minute:'2-digit'});
+  var portion = document.getElementById('r-portion').textContent;
+  var total = document.getElementById('r-total').textContent;
+  if(portion === '—') return; // nichts Gültiges berechnet
+  var g = document.getElementById('ig').value;
+  var carrier = document.getElementById('carrier').value;
+  var igUnitSel = document.getElementById('input-unit-label');
+  var igUnitTxt = igUnitSel.options[igUnitSel.selectedIndex].text;
+  var carrierUnitSel = document.getElementById('carrier-unit');
+  var carrierUnitTxt = carrierUnitSel.options[carrierUnitSel.selectedIndex].text;
+  var mat = calcMode==='extract'
+    ? g+igUnitTxt+' Extrakt ('+document.getElementById('potency-ext').value+'%)'
+    : g+igUnitTxt+' Blüten ('+document.getElementById('potency').value+'%)';
+  var entry = {
+    id:Date.now(), date:ds, time:ts, medium:med, material:mat,
+    carrier:carrier+carrierUnitTxt, portion:portion, total:total,
+    dose: portion.replace(/[^0-9.,]/g,'')
+  };
+  calcHistory.unshift(entry);
+  if(calcHistory.length>50) calcHistory = calcHistory.slice(0,50);
+  saveHistoryStorage();
+  renderHistory();
+  var el=document.getElementById('calc-saved');
+  if(el){ el.style.display='inline'; setTimeout(function(){el.style.display='none';}, 2000); }
+};
+
+window.deleteHistoryEntry = function(idx) {
+  calcHistory.splice(idx,1);
+  saveHistoryStorage();
+  renderHistory();
+};
+
+window.clearHistory = function() {
+  if(!calcHistory.length) return;
+  if(confirm('Gesamten Verlauf löschen?')) { calcHistory=[]; saveHistoryStorage(); renderHistory(); }
+};
+
+window.renderHistory = function() {
+  var list = document.getElementById('hist-list');
+  if(!calcHistory.length) { list.innerHTML = '<div class="empty-state">Noch keine gespeicherten Berechnungen.</div>'; return; }
+  var h='';
+  calcHistory.forEach(function(e,i){
+    var a = getDoseAmpel(e.dose);
+    h += '<div class="hist-item"><div class="hist-top"><div><b>'+esc(e.medium)+'</b><span class="hist-meta"> · '+esc(e.date)+' '+esc(e.time)+'</span></div>'
+      +'<button class="btn danger" onclick="deleteHistoryEntry('+i+')" title="Löschen">✕</button></div>'
+      +'<div class="hist-badges">'
+      +'<span class="badge" style="background:'+(a?a.bg:'var(--bg3)')+';color:'+(a?a.col:'var(--text3)')+';border-color:'+(a?a.border:'var(--border)')+'">'+(a?a.emoji+' ':'')+esc(e.portion)+' / Portion</span>'
+      +'<span class="badge">'+esc(e.total)+' gesamt</span>'
+      +'<span class="badge">'+esc(e.carrier)+'</span>'
+      +'</div><div class="hist-mat">'+esc(e.material)+'</div></div>';
+  });
+  list.innerHTML = h;
+};
+
+// ── INIT ──────────────────────────────────────────────────────────────────
+(function init(){
+  renderTerpeneGrid();
+  onMediumChange();
+  onExtractTypeChange();
+  renderHistory();
+  calcUpdate();
+
+  if('serviceWorker' in navigator && window.location.protocol !== 'file:'){
+    window.addEventListener('load', function(){
+      navigator.serviceWorker.register('./serviceworker.js')
+        .then(function(r){ console.log('SW:', r.scope); })
+        .catch(function(e){ console.warn('SW:', e); });
+    });
+  }
+})();
+</script>
+</body>
+</html>
