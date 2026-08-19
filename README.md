@@ -22,7 +22,21 @@ Diesen Link in Safari/Chrome öffnen — der Browser bietet dann "Zum Home-Bilds
 
 Für eigenes Hosting anderswo: den ganzen Ordner (alle 5 Dateien zusammen, gleiches Verzeichnis) auf einen beliebigen Webspace laden — wichtig sind die relativen Pfade (./manifest.json, ./icon-192.jpg etc.), die müssen erhalten bleiben.
 
-Bei einem Update: die Zeile CACHE_NAME = 'cannguide-rechner-v1' in serviceworker.js hochzählen (z.B. -v2), sonst bekommen bereits installierte Nutzer die neue Version nicht zu sehen.
+Bei einem Update: die Zeile CACHE_NAME in serviceworker.js hochzählen (aktuell 'cannguide-calculator-v2'), sonst bekommen bereits installierte Nutzer die neue Version nicht zu sehen.
+
+Sprachumschaltung DE / EN
+
+Oben rechts im Header sitzt ein DE/EN-Umschalter. Die App ist vollständig zweisprachig — Labels, Dropdowns (inkl. Gruppen), Extrakt- und Terpen-Beschreibungen, Warn- und Empfehlungstexte, 11-OH-Warnung, Verlauf und Footer.
+
+Die gewählte Sprache wird in localStorage gespeichert (Schlüssel cannguide_rechner_lang) und beim nächsten Start wiederhergestellt. Beim allerersten Aufruf entscheidet die Browsersprache: beginnt sie mit "de", startet die App auf Deutsch, sonst auf Englisch. Wer immer auf Deutsch starten will, ersetzt in index.html im Block unter "var lang = 'de';" die Zeile
+
+  else if((navigator.language || 'de').toLowerCase().indexOf('de') !== 0) lang = 'en';
+
+einfach durch nichts (Zeile löschen).
+
+Umschalten setzt keine Eingaben zurück: Werte, Schieberegler, gewähltes Medium, Einheiten und Verlauf bleiben unverändert, nur die Beschriftungen wechseln. Die Rechenlogik ist identisch — alle Zahlenwerte (Effizienzen, Potenz-Bereiche, Decarb-Faktor 0.877, Bioverfügbarkeit, Toleranz-Basiswerte) liegen sprachneutral im Code, übersetzt sind ausschliesslich Texte.
+
+Neue Texte ergänzen: alle Strings liegen im Objekt I18N (Anfang des <script>-Blocks) mit den Zweigen de und en. Statisches HTML wird über die Attribute data-i18n (textContent), data-i18n-html (innerHTML), data-i18n-label (optgroup) und data-i18n-title (title) verdrahtet; dynamische Texte über t('key', {platzhalter:wert}) bzw. tn('media'|'extracts'|'terpenes', key, feld).
 
 Was bewusst weggelassen wurde
 Inhalationsrechner — laut Absprache nicht Teil dieses Pakets (nur Blüten + Extrakt/Konzentrat, wie im aktuellen Stand der App).
