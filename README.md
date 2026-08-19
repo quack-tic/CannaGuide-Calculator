@@ -1,7 +1,6 @@
-# CannaGuide Rechner — eigenständiges Paket
+# CannaGuide Rechner
 
-Der Dosierungsrechner aus CannGuide (Rohmaterial & Extrakt/Konzentrat), herausgelöst als eigenständiges Mini-Tool. Keine Abhängigkeit zur restlichen App — kein Prozess-Guide, keine Chargenverwaltung, keine Bibliothek/Prävention.
-
+Der Dosierungsrechner aus CannGuide (Rohmaterial & Extrakt/Konzentrat), herausgelöst als eigenständiges Mini-Tool. 
 ## Enthalten
 
 - `index.html` — die komplette App in einer Datei (HTML/CSS/JS, keine externen Skripte, kein CDN).
