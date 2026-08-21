@@ -81,6 +81,9 @@ input[type=number]:focus,select:focus,input[type=text]:focus,textarea:focus{outl
 .pulse-green{animation:pulse-green 1.5s ease-in-out infinite;border-color:var(--accent)!important;}
 footer{font-size:var(--fs-xs);color:var(--text3);text-align:center;margin-top:1.5rem;line-height:1.6}
 footer a{color:var(--text2)}
+.feedback{text-align:center;margin-top:1.25rem}
+.feedback a{display:inline-flex;align-items:center;gap:6px;text-decoration:none;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius);padding:7px 14px;font-size:var(--fs-sm);color:var(--text2);transition:all .15s}
+.feedback a:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-bg)}
 </style>
 </head>
 <body>
@@ -239,6 +242,10 @@ footer a{color:var(--text2)}
   <div id="hist-list"></div>
 </div>
 
+<div class="feedback">
+  <a href="mailto:cannguide.unworthy579@passmail.net?subject=Anmerkungen%2FW%C3%BCnsche" data-i18n="feedbackLink">✉ Anmerkungen / Wünsche</a>
+</div>
+
 <footer data-i18n-html="footer">
   Schätzwerte, keine medizinische Beratung. Deine Eingaben bleiben ausschliesslich lokal auf diesem Gerät (localStorage) — nichts wird übertragen.<br>
   Extrahiert aus <a href="https://quack-tic.github.io/cannguide" target="_blank" rel="noopener">CannGuide</a> (Stand main-Branch, github.com/quack-tic/cannguide) · GNU GPL v3
@@ -310,6 +317,7 @@ de: {
   histConfirmClear:'Gesamten Verlauf löschen?',
   matExtract:'{g}{u} Extrakt ({p}%)',
   matFlower:'{g}{u} Blüten ({p}%)',
+  feedbackLink:'✉ Anmerkungen / Wünsche',
   footer:'Schätzwerte, keine medizinische Beratung. Deine Eingaben bleiben ausschliesslich lokal auf diesem Gerät (localStorage) — nichts wird übertragen.<br>Extrahiert aus <a href="https://quack-tic.github.io/cannguide" target="_blank" rel="noopener">CannGuide</a> (Stand main-Branch, github.com/quack-tic/cannguide) · GNU GPL v3',
   // Rechner-Ausgaben
   descExtract:'{g}g Extrakt × {p}% = {mg} mg roh',
@@ -452,6 +460,7 @@ en: {
   histConfirmClear:'Delete the entire history?',
   matExtract:'{g}{u} extract ({p}%)',
   matFlower:'{g}{u} flower ({p}%)',
+  feedbackLink:'✉ Feedback / suggestions',
   footer:'Estimates, not medical advice. Your entries stay exclusively local on this device (localStorage) — nothing is transmitted.<br>Extracted from <a href="https://quack-tic.github.io/cannguide" target="_blank" rel="noopener">CannGuide</a> (main branch, github.com/quack-tic/cannguide) · GNU GPL v3',
   // Calculator output
   descExtract:'{g}g extract × {p}% = {mg} mg raw',
