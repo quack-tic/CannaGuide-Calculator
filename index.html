@@ -84,6 +84,14 @@ footer a{color:var(--text2)}
 .feedback{text-align:center;margin-top:1.25rem}
 .feedback a{display:inline-flex;align-items:center;gap:6px;text-decoration:none;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius);padding:7px 14px;font-size:var(--fs-sm);color:var(--text2);transition:all .15s}
 .feedback a:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-bg)}
+.tour-scrim{position:fixed;inset:0;z-index:9998;background:transparent}
+.tour-highlight{position:fixed;z-index:9999;border:2px solid var(--accent);border-radius:10px;box-shadow:0 0 0 9999px rgba(0,0,0,.62);pointer-events:none;transition:top .25s ease,left .25s ease,width .25s ease,height .25s ease}
+.tour-card{position:fixed;z-index:10000;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius-lg);padding:1rem 1.125rem;box-shadow:0 8px 28px rgba(0,0,0,.45)}
+.tour-card h3{font-size:var(--fs-lg);font-weight:600;margin-bottom:6px}
+.tour-card p{font-size:var(--fs-sm);color:var(--text2);line-height:1.6;margin-bottom:.875rem}
+.tour-progress{font-size:var(--fs-xs);color:var(--text3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em;font-weight:600}
+.tour-actions{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.tour-actions .btn{padding:6px 12px;font-size:var(--fs-sm)}
 </style>
 </head>
 <body>
@@ -100,6 +108,7 @@ footer a{color:var(--text2)}
   </svg>
   <div><h1 data-i18n="appTitle">CannGuide Rechner</h1><p class="sub" data-i18n="appSub">Dosierungsrechner für Cannabis-Edibles — Blüten &amp; Extrakt/Konzentrat</p></div>
   <div class="lang-switch" role="group" aria-label="Sprache / Language">
+    <button type="button" id="tour-btn" onclick="startTour()" data-i18n-title="tourButtonTitle" title="Tour starten" aria-label="Tour">🧭</button>
     <button type="button" id="lang-de" onclick="setLang('de')" aria-label="Deutsch">DE</button>
     <button type="button" id="lang-en" onclick="setLang('en')" aria-label="English">EN</button>
   </div>
@@ -237,7 +246,7 @@ footer a{color:var(--text2)}
   </div>
 </div>
 
-<div class="cs">
+<div class="cs" id="history-section">
   <div class="section-title"><span data-i18n="histTitle">Verlauf</span><button class="btn danger" onclick="clearHistory()" data-i18n="btnClear">Alles löschen</button></div>
   <div id="hist-list"></div>
 </div>
@@ -318,6 +327,21 @@ de: {
   matExtract:'{g}{u} Extrakt ({p}%)',
   matFlower:'{g}{u} Blüten ({p}%)',
   feedbackLink:'✉ Anmerkungen / Wünsche',
+  tourButtonTitle:'Tour starten',
+  tourStepOf:'Schritt {n} von {total}',
+  tourNext:'Weiter', tourBack:'Zurück', tourSkip:'Überspringen', tourDone:'Fertig',
+  tourT0:'Willkommen 👋', tourB0:'Kurze Tour durch den Rechner — 12 Schritte, ca. 1 Minute. Du kannst jederzeit mit „Uberspringen“ aussteigen.',
+  tourT1:'Blüten oder Extrakt', tourB1:'Wähle hier, ob du mit Blüten oder mit einem Extrakt/Konzentrat rechnest. Der Rest des Formulars passt sich automatisch an.',
+  tourT2:'Eingesetzte Menge', tourB2:'Wie viel Ausgangsmaterial du einsetzt — die Einheit (mg/g/kg bzw. ml/dl/l) kannst du rechts frei wählen.',
+  tourT3:'Decarboxylierung', tourB3:'Pflichtangabe: Ist dein Material bereits aktiviert (erhitzt)? Falls nicht, zieht der Rechner automatisch ~12% CO₂-Massenverlust ab.',
+  tourT4:'Träger / Medium', tourB4:'Butter, Öl, Gummimasse & Co. — die Wahl setzt automatisch eine typische Extraktionseffizienz, die du unten anpassen kannst.',
+  tourT5:'Trägermenge & Portion', tourB5:'Wie viel Träger insgesamt und wie viel davon in einer fertigen Portion steckt. Aus diesem Verhältnis berechnet sich die Dosis pro Portion.',
+  tourT6:'Bioverfügbarkeit', tourB6:'Optional: Applikationsform (oral, sublingual, topisch) — bei „Oral“ erscheint automatisch die Warnung zu 11-Hydroxy-THC.',
+  tourT7:'Toleranz', tourB7:'Reine Zusatzinfo zur Einordnung — beeinflusst die berechnete Dosis nicht, nur den Hinweistext.',
+  tourT8:'Ergebnisse', tourB8:'Gesamtmenge, Dosis pro Portion, Intensität und Empfehlung — aktualisieren sich live bei jeder Eingabe.',
+  tourT9:'Verlauf', tourB9:'Berechnungen lokal speichern, um sie später wiederzufinden. Bleibt ausschliesslich auf deinem Gerät (localStorage).',
+  tourT10:'Feedback', tourB10:'Anmerkungen oder Wünsche? Dieser Link öffnet direkt eine vorbereitete Mail.',
+  tourT11:'Sprache', tourB11:'DE/EN — schaltet die ganze App um, ohne deine Eingaben zu verlieren. Diese Tour gibt’s jederzeit wieder über das Kompass-Symbol.',
   footer:'Schätzwerte, keine medizinische Beratung. Deine Eingaben bleiben ausschliesslich lokal auf diesem Gerät (localStorage) — nichts wird übertragen.<br>Extrahiert aus <a href="https://quack-tic.github.io/cannguide" target="_blank" rel="noopener">CannGuide</a> (Stand main-Branch, github.com/quack-tic/cannguide) · GNU GPL v3',
   // Rechner-Ausgaben
   descExtract:'{g}g Extrakt × {p}% = {mg} mg roh',
@@ -461,6 +485,21 @@ en: {
   matExtract:'{g}{u} extract ({p}%)',
   matFlower:'{g}{u} flower ({p}%)',
   feedbackLink:'✉ Feedback / suggestions',
+  tourButtonTitle:'Take the tour',
+  tourStepOf:'Step {n} of {total}',
+  tourNext:'Next', tourBack:'Back', tourSkip:'Skip', tourDone:'Done',
+  tourT0:'Welcome 👋', tourB0:'A quick tour of the calculator — 12 steps, about a minute. You can leave anytime with “Skip”.',
+  tourT1:'Flower or extract', tourB1:'Choose whether you’re calculating with flower or with an extract/concentrate. The rest of the form adapts automatically.',
+  tourT2:'Amount used', tourB2:'How much starting material you’re using — pick the unit (mg/g/kg or ml/dl/l) on the right.',
+  tourT3:'Decarboxylation', tourB3:'Required: is your material already activated (heated)? If not, the calculator automatically deducts ~12% CO₂ mass loss.',
+  tourT4:'Carrier / medium', tourB4:'Butter, oil, gummy mass and more — your choice sets a typical extraction efficiency, adjustable below.',
+  tourT5:'Carrier amount & portion', tourB5:'Total carrier amount and how much of it is in one finished portion. This ratio determines the dose per portion.',
+  tourT6:'Bioavailability', tourB6:'Optional: route of administration (oral, sublingual, topical) — choosing “oral” automatically shows the 11-hydroxy-THC warning.',
+  tourT7:'Tolerance', tourB7:'Purely informational — it doesn’t change the calculated dose, only the note shown below.',
+  tourT8:'Results', tourB8:'Total amount, dose per portion, intensity and recommendation — all update live as you type.',
+  tourT9:'History', tourB9:'Save calculations locally to find them again later. Stays exclusively on your device (localStorage).',
+  tourT10:'Feedback', tourB10:'Comments or suggestions? This link opens a pre-filled email.',
+  tourT11:'Language', tourB11:'DE/EN — switches the whole app without losing your inputs. You can replay this tour anytime via the compass icon.',
   footer:'Estimates, not medical advice. Your entries stay exclusively local on this device (localStorage) — nothing is transmitted.<br>Extracted from <a href="https://quack-tic.github.io/cannguide" target="_blank" rel="noopener">CannGuide</a> (main branch, github.com/quack-tic/cannguide) · GNU GPL v3',
   // Calculator output
   descExtract:'{g}g extract × {p}% = {mg} mg raw',
@@ -696,6 +735,7 @@ window.setLang = function(l) {
   onDecarbChange();   // aktualisiert Decarb-Infoboxen
   onBioChange();      // aktualisiert Applikations-Infobox + calcUpdate()
   renderHistory();
+  if(tourActive) renderTourStep();
 };
 
 // ── TERPENE GRID ──────────────────────────────────────────────────────────
@@ -1099,6 +1139,127 @@ window.renderHistory = function() {
   list.innerHTML = h;
 };
 
+
+// ── DEMO-TOUR ─────────────────────────────────────────────────────────────
+var TOUR_STEPS = [
+  {sel:null, titleKey:'tourT0', bodyKey:'tourB0'},
+  {sel:'.mode-toggle', titleKey:'tourT1', bodyKey:'tourB1'},
+  {sel:function(){var e=document.getElementById('ig');return e&&e.closest('.cr');}, titleKey:'tourT2', bodyKey:'tourB2'},
+  {sel:function(){var e=document.getElementById('raw-decarb');return e&&e.closest('.cr');}, titleKey:'tourT3', bodyKey:'tourB3'},
+  {sel:function(){var e=document.getElementById('cm');return e&&e.closest('.cr');}, titleKey:'tourT4', bodyKey:'tourB4'},
+  {sel:'#edible-fields', titleKey:'tourT5', bodyKey:'tourB5'},
+  {sel:function(){var e=document.getElementById('bioavail');return e&&e.closest('.cr');}, titleKey:'tourT6', bodyKey:'tourB6'},
+  {sel:function(){var e=document.getElementById('tolerance');return e&&e.closest('.cr');}, titleKey:'tourT7', bodyKey:'tourB7'},
+  {sel:'#result-grid', titleKey:'tourT8', bodyKey:'tourB8'},
+  {sel:'#history-section', titleKey:'tourT9', bodyKey:'tourB9'},
+  {sel:'.feedback', titleKey:'tourT10', bodyKey:'tourB10'},
+  {sel:'.lang-switch', titleKey:'tourT11', bodyKey:'tourB11'}
+];
+var tourIndex = 0, tourActive = false;
+
+function tourResolveTarget(step){
+  if(!step.sel) return null;
+  if(typeof step.sel === 'function') return step.sel();
+  return document.querySelector(step.sel);
+}
+
+function tourBuildDom(){
+  if(document.getElementById('tour-scrim')) return;
+  var scrim = document.createElement('div'); scrim.id='tour-scrim'; scrim.className='tour-scrim';
+  var hl = document.createElement('div'); hl.id='tour-highlight'; hl.className='tour-highlight';
+  var card = document.createElement('div'); card.id='tour-card'; card.className='tour-card';
+  card.innerHTML =
+    '<div class="tour-progress" id="tour-progress"></div>'+
+    '<h3 id="tour-title"></h3>'+
+    '<p id="tour-body"></p>'+
+    '<div class="tour-actions">'+
+      '<button type="button" class="btn" id="tour-skip"></button>'+
+      '<div style="display:flex;gap:6px">'+
+        '<button type="button" class="btn" id="tour-back"></button>'+
+        '<button type="button" class="btn primary" id="tour-next"></button>'+
+      '</div>'+
+    '</div>';
+  document.body.appendChild(scrim);
+  document.body.appendChild(hl);
+  document.body.appendChild(card);
+  document.getElementById('tour-skip').onclick = endTour;
+  document.getElementById('tour-back').onclick = function(){ if(tourIndex>0){ tourIndex--; renderTourStep(); } };
+  document.getElementById('tour-next').onclick = function(){
+    if(tourIndex < TOUR_STEPS.length-1){ tourIndex++; renderTourStep(); } else { endTour(); }
+  };
+  scrim.addEventListener('click', function(e){ e.stopPropagation(); e.preventDefault(); });
+  window.addEventListener('resize', tourReposition);
+  window.addEventListener('scroll', tourReposition, true);
+}
+
+function endTour(){
+  tourActive = false;
+  try{ localStorage.setItem('cannguide_rechner_tour_seen','1'); }catch(e){}
+  ['tour-scrim','tour-highlight','tour-card'].forEach(function(id){ var el=document.getElementById(id); if(el) el.remove(); });
+  window.removeEventListener('resize', tourReposition);
+  window.removeEventListener('scroll', tourReposition, true);
+}
+
+function tourPosition(target){
+  var hl = document.getElementById('tour-highlight');
+  var card = document.getElementById('tour-card');
+  if(!hl || !card) return;
+  if(!target){
+    hl.style.display='none';
+    card.style.transform='translate(-50%,-50%)';
+    card.style.top='50%'; card.style.left='50%';
+    card.style.width = Math.min(340, window.innerWidth-32)+'px';
+    return;
+  }
+  var r = target.getBoundingClientRect();
+  var pad = 6;
+  hl.style.display='block';
+  hl.style.top = (r.top-pad)+'px';
+  hl.style.left = (r.left-pad)+'px';
+  hl.style.width = (r.width+pad*2)+'px';
+  hl.style.height = (r.height+pad*2)+'px';
+  card.style.transform='none';
+  var cardW = Math.min(340, window.innerWidth-32);
+  card.style.width = cardW+'px';
+  var spaceBelow = window.innerHeight - r.bottom;
+  var placeBelow = spaceBelow > 200 || spaceBelow > r.top;
+  var left = Math.min(Math.max(16, r.left), window.innerWidth - cardW - 16);
+  card.style.left = left+'px';
+  card.style.top = Math.max(16, placeBelow ? (r.bottom+pad+10) : (r.top-pad-10)) + 'px';
+  requestAnimationFrame(function(){
+    var ch = card.getBoundingClientRect().height;
+    if(!placeBelow) card.style.top = Math.max(16, r.top - pad - ch - 10) + 'px';
+    var overflow = (parseFloat(card.style.top)+ch) - (window.innerHeight-16);
+    if(overflow>0) card.style.top = Math.max(16, parseFloat(card.style.top)-overflow)+'px';
+  });
+}
+
+function tourReposition(){
+  if(!tourActive) return;
+  tourPosition(tourResolveTarget(TOUR_STEPS[tourIndex]));
+}
+
+function renderTourStep(){
+  var step = TOUR_STEPS[tourIndex];
+  document.getElementById('tour-progress').textContent = t('tourStepOf', {n:tourIndex+1, total:TOUR_STEPS.length});
+  document.getElementById('tour-title').textContent = t(step.titleKey);
+  document.getElementById('tour-body').innerHTML = t(step.bodyKey);
+  document.getElementById('tour-skip').textContent = t('tourSkip');
+  document.getElementById('tour-back').textContent = t('tourBack');
+  document.getElementById('tour-back').style.visibility = tourIndex===0 ? 'hidden' : 'visible';
+  document.getElementById('tour-next').textContent = tourIndex===TOUR_STEPS.length-1 ? t('tourDone') : t('tourNext');
+  var target = tourResolveTarget(step);
+  if(target && target.scrollIntoView) target.scrollIntoView({behavior:'smooth', block:'center'});
+  setTimeout(function(){ tourPosition(target); }, target ? 260 : 0);
+}
+
+window.startTour = function(){
+  setCalcMode('raw');
+  tourIndex = 0; tourActive = true;
+  tourBuildDom();
+  renderTourStep();
+};
+
 // ── INIT ──────────────────────────────────────────────────────────────────
 (function init(){
   buildGroupedSelect('cm', MEDIA_GROUPS, 'media');
@@ -1109,6 +1270,12 @@ window.renderHistory = function() {
   onExtractTypeChange();
   renderHistory();
   calcUpdate();
+
+  try {
+    if(!localStorage.getItem('cannguide_rechner_tour_seen')) {
+      setTimeout(startTour, 700);
+    }
+  } catch(e) {}
 
   if('serviceWorker' in navigator && window.location.protocol !== 'file:'){
     window.addEventListener('load', function(){
